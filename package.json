@@ -1,0 +1,29 @@
+{
+	"name": "Core-date",
+	"version": "0.0.1",
+	"description": "JS Date library for browser and server",
+	"main": "build/date.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rafikalid/core-date.git"
+	},
+	"keywords": [
+		"css",
+		"reactor",
+		"gridfw"
+	],
+	"author": "Khalid rafik",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/rafikalid/core-date/issues"
+	},
+	"homepage": "https://github.com/rafikalid/core-date#readme",
+	"devDependencies": {
+		"gulp-gridfw": "^1.0.0",
+		"gulp": "^4.0.2"
+	},
+	"dependencies": {}
+}

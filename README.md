@@ -1,2 +1,4 @@
 # core-date
-js Date library for browser and server
+JS Date library for browser and server
+
+**Doc will be added very soon**
