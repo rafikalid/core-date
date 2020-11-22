@@ -104,11 +104,13 @@ applyDateTo: do ->
 		return
 	# Run interval
 	_intervExec= ->
-		elements= document.querySelectorAll _timeTagsSelector
-		if elements.length then _formatdate elements
-		else
-			clearInterval _interv
-			_interv= null
+		requestAnimationFrame ->
+			elements= document.querySelectorAll _timeTagsSelector
+			if elements.length then _formatdate elements
+			else
+				clearInterval _interv
+				_interv= null
+			return
 		return
 	# Interface
 	return (htmlElement)->
@@ -121,7 +123,9 @@ applyDateTo: do ->
 			else
 				htmlElement= htmlElement.querySelectorAll _timeTagsSelector
 				# Format each tag
-				_formatdate htmlElement
+				requestAnimationFrame ->
+					_formatdate htmlElement
+					return
 				# Run interval
 				_interv= setInterval _intervExec, 60000 unless _interv
 		catch error
