@@ -79,10 +79,10 @@ compileDatePattern= do ->
 			else result.push el
 		return result.join ''
 	# Interface
-	(format)->
-		throw new Error "Illegal arguments" unless arguments.length is 1 and typeof format is 'string'
+	(oFormat)->
+		throw new Error "Illegal arguments" unless arguments.length is 1 and typeof oFormat is 'string'
 		# check for named formats
-		format= v if v= i18n.datePatterns[format]
+		format= if v= i18n.datePatterns[oFormat] then v else oFormat
 		# Compile
 		format= format.split FORMAT_SPLIT_REGEX
 		parts= []
@@ -105,12 +105,52 @@ compileDatePattern= do ->
 			cum.length= 0
 		# return
 		return
-			patterns: patterns
-			parts:	parts
-			format: _formater
+			source:		oFormat
+			patterns:	patterns
+			parts:		parts
+			format:		_formater
 
 
 ###*
  * Date cache
 ###
 _dateCache= new FastLRU 20, compileDatePattern
+
+
+###*
+ * Convert string to Milliseconds
+###
+
+###*
+ * Convert string to milliseconds
+ * @example	2152152
+ * @example	15415ms
+ * @example	85s
+ * @example	85d 20s
+ * @example	85d 3h 20s
+###
+_strToMillisecondsRegex= /^(\d+)([dhms]|ms)$/
+_strToMilliseconds= (str)->
+	return null unless str
+	if isNaN str
+		total= 0
+		for s in str.trim().toLowerCase().split /\s+/
+			if r= _strToMillisecondsRegex.exec s
+				vl= parseFloat r[1]
+				switch r[2]
+					when 'd'
+						total+= vl * 24 * 3600 * 1000
+					when 'h'
+						total+= vl * 3600 * 1000
+					when 'm'
+						total+= vl * 60 * 1000
+					when 's'
+						total+= vl * 1000
+					when 'ms'
+						total+= vl
+					else
+						throw new Error "String contains unsupported unit: #{str}"
+			else throw new Error "Fail to convert to ms: #{str}"
+		return total
+	else
+		return parseInt str

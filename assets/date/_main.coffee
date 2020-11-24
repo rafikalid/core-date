@@ -1,4 +1,5 @@
-# Core Date
+###* Convert string to milliseconds ###
+toMilliseconds: _strToMilliseconds
 ###*
  * Return formated date
 ###
