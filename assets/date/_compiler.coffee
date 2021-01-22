@@ -133,24 +133,64 @@ _strToMillisecondsRegex= /^(\d+)([dhms]|ms)$/
 _strToMilliseconds= (str)->
 	return null unless str
 	if isNaN str
-		total= 0
-		for s in str.trim().toLowerCase().split /\s+/
-			if r= _strToMillisecondsRegex.exec s
-				vl= parseFloat r[1]
-				switch r[2]
-					when 'd'
-						total+= vl * 24 * 3600 * 1000
-					when 'h'
-						total+= vl * 3600 * 1000
-					when 'm'
-						total+= vl * 60 * 1000
-					when 's'
-						total+= vl * 1000
-					when 'ms'
-						total+= vl
-					else
-						throw new Error "String contains unsupported unit: #{str}"
-			else throw new Error "Fail to convert to ms: #{str}"
+		total= (new Date(str)).getTime()
+		if isNaN total
+			total= 0
+			for s in str.trim().toLowerCase().split /\s+/
+				if r= _strToMillisecondsRegex.exec s
+					vl= parseFloat r[1]
+					switch r[2]
+						when 'd'
+							total+= vl * 24 * 3600 * 1000
+						when 'h'
+							total+= vl * 3600 * 1000
+						when 'm'
+							total+= vl * 60 * 1000
+						when 's'
+							total+= vl * 1000
+						when 'ms'
+							total+= vl
+						else
+							throw new Error "String contains unsupported unit: #{str}"
+				else throw new Error "Fail to convert to ms: #{str}"
 		return total
 	else
 		return parseInt str
+
+###* Parse date ###
+_parseDate= (expr)->
+	# String expression
+	if typeof expr is 'string'
+		expr= expr.trim()
+		# Now - expr
+		c= expr.charAt(0)
+		if c is '-'
+			result= new Date Date.now() - _strToMilliseconds expr.substr 1
+		else if c is '+'
+			result= new Date Date.now() + _strToMilliseconds expr.substr 1
+		else if expr is 'now'
+			result= new Date()
+		else if expr
+			result= new Date expr
+			if isNaN result.getTime()
+				result= _strToMilliseconds expr
+				result= if result? then new Date result else null
+		else
+			result= null
+	# Number expression
+	else if typeof expr is 'number'
+		result= if Number.isFinite expr then new Date(expr) else null
+	# Date
+	else if expr instanceof Date
+		result= expr
+	else if expr?
+		throw new Error "Unsupported argument"
+	else
+		result= null
+	return result
+###* Convert date to timestamp ###
+_toTimeStamp= (date, defaultV)->
+	try
+		return _parseDate(date).getTime()
+	catch error
+		return defaultV

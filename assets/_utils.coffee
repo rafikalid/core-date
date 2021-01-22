@@ -3,7 +3,7 @@
 ###
 # _getOwnPropertyDescriptors= Object.getOwnPropertyDescriptors
 # _defineProperties= Object.defineProperties
-
+DEFAULT_DATE_PATTERN= 'full'
 
 # _isArray= Object.isArray
 

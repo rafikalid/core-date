@@ -1,5 +1,7 @@
 ###* Convert string to milliseconds ###
 toMilliseconds: _strToMilliseconds
+###* Parse date expression ###
+parseDate: _parseDate
 ###*
  * Return formated date
 ###
@@ -74,15 +76,18 @@ dateRelaxed: (date, relativeDate, pattern)->
 ###
 applyDateTo: do ->
 	_relaxe_stop_class= '_core-dt-stp'
-	_timeTagsSelector= "time[d-pattern]:not(.#{_relaxe_stop_class})"
+	_timeTagsSelector= "time:not(.#{_relaxe_stop_class})"
 	_interv= null
 	# Format date
 	_formatdate= (htmlElements)->
 		relativeDate= Date.now()
 		relativeMidnight= relativeDate - ( relativeDate % (1000 * 3600 * 24) )
 		i18nDatePatterns= i18n.datePatterns
+		activeElements= 0
 		for element in htmlElements
 			try
+				# Check relaxed or has pattern
+				continue unless (isRelaxed= element.hasAttribute 'd-relaxed') or element.hasAttribute('d-pattern')
 				# Get date time attribute
 				continue unless datetime= element.getAttribute 'datetime'
 				if isNaN(datetime)
@@ -90,25 +95,26 @@ applyDateTo: do ->
 					continue if isNaN(datetime)
 				else
 					datetime= parseInt datetime
+				# Inc active elements
+				++activeElements
 				# Calc relaxed value
-				if element.hasAttribute 'd-relaxed'
+				if isRelaxed
 					value= i18nDatePatterns.relaxed relativeDate, datetime, relativeMidnight
 					if value is false
-						value= Core.formatDate datetime, element.getAttribute 'd-pattern'
+						value= Core.formatDate(new Date(datetime), element.getAttribute('d-pattern') or DEFAULT_DATE_PATTERN)
 						element.classList.add _relaxe_stop_class
 				else
-					value= Core.formatDate datetime, element.getAttribute 'd-pattern'
+					value= Core.formatDate(new Date(datetime), element.getAttribute('d-pattern') or DEFAULT_DATE_PATTERN)
 					element.classList.add _relaxe_stop_class
 				element.innerHTML= value
 			catch error
 				Core.fatalError 'DATE', error
-		return
+		return activeElements
 	# Run interval
 	_intervExec= ->
 		requestAnimationFrame ->
 			elements= document.querySelectorAll _timeTagsSelector
-			if elements.length then _formatdate elements
-			else
+			unless elements.length and _formatdate elements
 				clearInterval _interv
 				_interv= null
 			return
